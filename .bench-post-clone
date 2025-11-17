@@ -5,9 +5,9 @@
 cd "$(dirname "$0")/../.." || exit
 
 if [ -f "sites/apps.txt" ]; then
-    if ! grep -q "^apex_item$" sites/apps.txt; then
-        echo "apex_item" >> sites/apps.txt
-        echo "✅ Added apex_item to sites/apps.txt"
-    fi
+	if ! grep -q "^apex_item$" sites/apps.txt; then
+		echo "apex_item" >> sites/apps.txt
+		echo "✅ Added apex_item to sites/apps.txt"
+	fi
 fi
 
