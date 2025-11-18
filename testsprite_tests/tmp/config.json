@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8000/http://localhost:8000/login",
+  "backendAuthType": "basic token",
+  "backendUsername": "administrator",
+  "backendPassword": "Tdmin#2#App",
+  "executionArgs": {
+    "projectName": "apex_item",
+    "projectPath": "/home/frappe/frappe-bench/apps/apex_item",
+    "testIds": [],
+    "additionalInstruction": "Generate comprehensive backend tests for the apex_item Frappe app. Test all stock calculation functions, API endpoints, document event handlers, and integration with ERPNext modules. Ensure tests cover edge cases and error handling.",
+    "envs": {
+      "API_KEY": "sk-user-WEfk9bw7lP3U_f1vzhZpzNT-0XUxaMFC5MWYwMpR_fzXufrKBkiIGuyw-1Z20jUbbR2_4_eD6q7_7vcppK45la_nEoX5N1fBxttED26t91f_s_JNGqjkPvczAWb1kfT8oJ4"
+    }
+  },
+  "proxy": "http://a42f8fe5-8df1-414b-9393-97390cd7d5b5:bUqh80zyeFC17iQmJzkLeS0UkYaHCGgk@tun.testsprite.com:8080"
+}

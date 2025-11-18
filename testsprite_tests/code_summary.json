@@ -1,0 +1,200 @@
+{
+  "tech_stack": {
+    "backend": {
+      "language": "Python",
+      "version": "3.10+",
+      "framework": "Frappe Framework",
+      "framework_version": "15.x",
+      "dependencies": [
+        "frappe",
+        "hashlib",
+        "functools",
+        "copy",
+        "pathlib",
+        "json"
+      ]
+    },
+    "frontend": {
+      "language": "JavaScript",
+      "version": "ES6+",
+      "framework": "Frappe UI",
+      "libraries": [
+        "jQuery",
+        "Frappe Client API"
+      ]
+    },
+    "database": {
+      "type": "MariaDB/PostgreSQL",
+      "access": "Via Frappe ORM"
+    },
+    "caching": {
+      "type": "Redis",
+      "access": "Via Frappe Cache"
+    },
+    "testing": {
+      "framework": "Python unittest",
+      "test_runner": "Frappe Test Runner"
+    }
+  },
+  "features": [
+    {
+      "name": "Item Price Stock Management",
+      "description": "Adds actual_qty, reserved_qty, available_qty, and waiting_qty fields to Item Price doctype",
+      "components": [
+        "Custom Fields",
+        "Document Events",
+        "Stock Calculation Logic"
+      ]
+    },
+    {
+      "name": "Automatic Stock Updates",
+      "description": "Auto-updates Item Price quantities when related documents change",
+      "triggers": [
+        "Stock Ledger Entry (on_submit, on_cancel)",
+        "Bin (on_update)",
+        "Sales Order (on_submit, on_cancel, on_update_after_submit)",
+        "Purchase Order (on_submit, on_cancel, on_update_after_submit)",
+        "Purchase Receipt (on_submit, on_cancel)"
+      ]
+    },
+    {
+      "name": "Item Price Card Configuration",
+      "description": "Custom DocTypes for configuring mobile card display",
+      "components": [
+        "Item Price Card Setting (Single DocType)",
+        "Item Price Card Field (Child DocType)"
+      ]
+    },
+    {
+      "name": "Mobile-Responsive Card View",
+      "description": "Enhanced mobile card view for Item Price list with configurable fields",
+      "features": [
+        "Responsive design (mobile/desktop)",
+        "Configurable field display",
+        "Item image support",
+        "Custom CSS styling",
+        "Auto-refresh functionality"
+      ]
+    },
+    {
+      "name": "Scheduled Reconciliation",
+      "description": "Cron job to reconcile Item Price quantities from recently changed Bins",
+      "schedule": "*/5 * * * * (every 5 minutes)"
+    },
+    {
+      "name": "API Endpoints",
+      "description": "Whitelisted API methods for refreshing Item Price data",
+      "methods": [
+        "get_item_price_card_config",
+        "update_all_item_price_qty",
+        "get_item_price_card_setting_debug",
+        "ensure_item_price_card_setting",
+        "reset_item_price_card_setting",
+        "refresh_item_price",
+        "refresh_item_prices",
+        "refresh_item_prices_by_filters"
+      ]
+    },
+    {
+      "name": "Custom Fields",
+      "description": "Custom fields added to Item Price doctype",
+      "fields": [
+        "stock_warehouse",
+        "actual_qty",
+        "reserved_qty",
+        "available_qty",
+        "waiting_qty",
+        "item_group",
+        "item_image"
+      ]
+    },
+    {
+      "name": "List View Customization",
+      "description": "Custom JavaScript for Item Price list view",
+      "features": [
+        "Mobile card rendering",
+        "Bulk refresh functionality",
+        "Auto-sync with throttling",
+        "Custom indicators",
+        "Responsive layout switching"
+      ]
+    },
+    {
+      "name": "Form View Customization",
+      "description": "Custom JavaScript for Item Price form view",
+      "features": [
+        "Refresh Stock button",
+        "Real-time stock snapshot update"
+      ]
+    },
+    {
+      "name": "Installation & Migration",
+      "description": "Install hooks for setting up fixtures and defaults",
+      "hooks": [
+        "after_install",
+        "after_migrate",
+        "before_uninstall"
+      ]
+    }
+  ],
+  "app_structure": {
+    "main_modules": [
+      "apex_item.api",
+      "apex_item.item_price_config",
+      "apex_item.item_price_hooks",
+      "apex_item.install"
+    ],
+    "doctypes": [
+      "Item Price Card Field",
+      "Item Price Card Setting"
+    ],
+    "fixtures": [
+      "Custom Field",
+      "Property Setter"
+    ],
+    "public_assets": [
+      "public/js/item_price_form.js",
+      "public/js/item_price_list.js"
+    ]
+  },
+  "dependencies": {
+    "required_apps": [],
+    "optional_apps": [
+      "erpnext"
+    ]
+  },
+  "integration_points": {
+    "frappe_hooks": [
+      "doc_events",
+      "doctype_js",
+      "doctype_list_js",
+      "scheduler_events",
+      "fixtures"
+    ],
+    "erpnext_integration": [
+      "Item Price doctype (extends)",
+      "Bin doctype (listens to events)",
+      "Stock Ledger Entry (listens to events)",
+      "Sales Order (listens to events)",
+      "Purchase Order (listens to events)",
+      "Purchase Receipt (listens to events)"
+    ]
+  },
+  "testing_requirements": {
+    "test_types": [
+      "Unit tests for stock calculation",
+      "Integration tests for doc events",
+      "API endpoint tests",
+      "Frontend JavaScript tests"
+    ],
+    "test_data_requirements": [
+      "Item records",
+      "Warehouse records",
+      "Item Price records",
+      "Bin records",
+      "Stock Ledger Entry records",
+      "Sales/Purchase Order records"
+    ]
+  }
+}
+
