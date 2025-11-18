@@ -8,45 +8,33 @@ The actual package structure is: apex_item/apex_item/ with hooks.py, install.py,
 # Frappe expects: apex_item.hooks, apex_item.install, etc.
 
 import sys
+import importlib.util
 from pathlib import Path
 
 # Get the app directory and the package directory
 _app_dir = Path(__file__).parent
 _package_dir = _app_dir / "apex_item"
 
-# Add package directory to Python path if not already there
-if str(_package_dir) not in sys.path:
-    sys.path.insert(0, str(_package_dir))
+# Import modules directly from the package directory
+# The structure is: apps/apex_item/apex_item/hooks.py
+# We need to make apex_item.hooks importable
 
-# Import key modules that Frappe needs
-# These are at apex_item/apex_item/hooks.py, etc.
-try:
-    from apex_item import hooks
-    sys.modules["apex_item.hooks"] = hooks
-except ImportError:
-    pass
+_modules_to_import = ['hooks', 'install', 'item_price_hooks', 'item_price_config', 'api']
 
-try:
-    from apex_item import install
-    sys.modules["apex_item.install"] = install
-except ImportError:
-    pass
-
-try:
-    from apex_item import item_price_hooks
-    sys.modules["apex_item.item_price_hooks"] = item_price_hooks
-except ImportError:
-    pass
-
-try:
-    from apex_item import item_price_config
-    sys.modules["apex_item.item_price_config"] = item_price_config
-except ImportError:
-    pass
-
-try:
-    from apex_item import api
-    sys.modules["apex_item.api"] = api
-except ImportError:
-    pass
-
+for module_name in _modules_to_import:
+    module_path = _package_dir / f"{module_name}.py"
+    if module_path.exists():
+        try:
+            spec = importlib.util.spec_from_file_location(
+                f"apex_item.{module_name}",
+                module_path
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[f"apex_item.{module_name}"] = module
+                spec.loader.exec_module(module)
+                # Also make it available as an attribute of this module
+                setattr(sys.modules[__name__], module_name, module)
+        except Exception:
+            # Silently fail if module can't be loaded
+            pass
