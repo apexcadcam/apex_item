@@ -165,6 +165,9 @@ doc_events = {
 		"on_submit": "apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
 		"on_cancel": "apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
 	},
+	"Item": {
+		"validate": "apex_item.item_foreign_purchase_hooks.update_item_on_save",
+	},
 }
 
 # DocType JavaScript
@@ -269,7 +272,7 @@ fixtures = [
 		"dt": "Custom Field",
 		"filters": [
 			["module", "=", "Apex Item"],
-			["dt", "=", "Item Price"],
+			["dt", "in", ["Item Price", "Item"]],
 		],
 	},
 	{
