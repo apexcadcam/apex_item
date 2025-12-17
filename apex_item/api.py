@@ -17,6 +17,7 @@ from apex_item.item_price_config import (
 	get_field_definition,
 )
 from apex_item.item_price_hooks import set_stock_fields
+from apex_item.item_foreign_purchase import get_item_foreign_purchase_info
 
 _CARD_CONFIG_CACHE_KEY = "apex_item:item_price_card_config"
 _EXCLUDED_CARD_FIELDS = {"item_name"}
@@ -188,6 +189,129 @@ def update_all_item_price_qty():
 		"updated": updated,
 		"total": len(item_prices),
 		"message": f"✓ Updated {updated} Item Prices successfully!",
+	}
+
+
+@frappe.whitelist()
+def update_all_items_foreign_purchase_info():
+	"""
+	تحديث معلومات آخر شراء بالعملة الأجنبية لجميع الأصناف.
+	
+	هذه الدالة تحدث حقول:
+	- item_foreign_purchase_rate
+	- item_foreign_purchase_currency
+	- custom_item_foreign_purchase_date
+	- item_foreign_purchase_voucher_type
+	- item_foreign_purchase_voucher_no
+	- item_foreign_purchase_supplier
+	- item_foreign_purchase_applicable_charges
+	
+	Returns:
+		dict: {
+			"success": bool,
+			"updated": int,
+			"total": int,
+			"message": str
+		}
+	"""
+	frappe.only_for("System Manager")
+	
+	# جلب جميع الأصناف التي لها وثائق شراء
+	items = frappe.db.sql("""
+		SELECT DISTINCT item_code
+		FROM (
+			SELECT DISTINCT poi.item_code
+			FROM `tabPurchase Order Item` poi
+			INNER JOIN `tabPurchase Order` po ON poi.parent = po.name
+			WHERE po.docstatus = 1
+			UNION
+			SELECT DISTINCT pri.item_code
+			FROM `tabPurchase Receipt Item` pri
+			INNER JOIN `tabPurchase Receipt` pr ON pri.parent = pr.name
+			WHERE pr.docstatus = 1
+			UNION
+			SELECT DISTINCT pii.item_code
+			FROM `tabPurchase Invoice Item` pii
+			INNER JOIN `tabPurchase Invoice` pi ON pii.parent = pi.name
+			WHERE pi.docstatus = 1
+		) AS all_items
+		WHERE item_code IS NOT NULL
+		ORDER BY item_code
+	""", as_dict=True)
+	
+	updated = 0
+	failed = 0
+	total = len(items)
+	
+	print(f"\n🔄 تحديث {total} صنف...")
+	
+	for idx, item in enumerate(items, 1):
+		item_code = item.item_code
+		
+		try:
+			purchase_info = get_item_foreign_purchase_info(item_code)
+			
+			if purchase_info:
+				frappe.db.set_value(
+					"Item",
+					item_code,
+					{
+						"item_foreign_purchase_rate": purchase_info.get("rate"),
+						"item_foreign_purchase_currency": purchase_info.get("currency"),
+						"custom_item_foreign_purchase_date": purchase_info.get("purchase_date"),
+						"item_foreign_purchase_voucher_type": purchase_info.get("voucher_type"),
+						"item_foreign_purchase_voucher_no": purchase_info.get("voucher_no"),
+						"item_foreign_purchase_supplier": purchase_info.get("supplier"),
+						"item_foreign_purchase_applicable_charges": purchase_info.get("applicable_charges"),
+						"item_foreign_purchase_lcv": purchase_info.get("lcv_name")
+					},
+					update_modified=False
+				)
+				updated += 1
+			else:
+				# Clear values if no purchase info found
+				frappe.db.set_value(
+					"Item",
+					item_code,
+					{
+						"item_foreign_purchase_rate": 0,
+						"item_foreign_purchase_currency": None,
+						"custom_item_foreign_purchase_date": None,
+						"item_foreign_purchase_voucher_type": None,
+						"item_foreign_purchase_voucher_no": None,
+						"item_foreign_purchase_supplier": None,
+						"item_foreign_purchase_applicable_charges": 0,
+						"item_foreign_purchase_lcv": None
+					},
+					update_modified=False
+				)
+				updated += 1
+			
+			# Commit كل 50 صنف لتجنب timeout
+			if updated % 50 == 0:
+				frappe.db.commit()
+				frappe.publish_realtime(
+					"progress",
+					{"progress": updated, "total": total},
+					user=frappe.session.user,
+				)
+				print(f"  ✓ تم تحديث {updated}/{total} صنف...")
+		
+		except Exception as exc:
+			failed += 1
+			frappe.log_error(
+				f"Error updating {item_code}: {str(exc)}\n{frappe.get_traceback()}",
+				"Apex Item - Update All Items Foreign Purchase Info"
+			)
+	
+	frappe.db.commit()
+	
+	return {
+		"success": True,
+		"updated": updated,
+		"failed": failed,
+		"total": total,
+		"message": f"✓ تم تحديث {updated} صنف بنجاح! ({failed} فشل)",
 	}
 
 

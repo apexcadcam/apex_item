@@ -157,13 +157,26 @@ doc_events = {
 		"on_update_after_submit": "apex_item.item_price_hooks.update_item_prices_from_sales_order",
 	},
 	"Purchase Order": {
-		"on_submit": "apex_item.item_price_hooks.update_item_prices_from_purchase_order",
-		"on_cancel": "apex_item.item_price_hooks.update_item_prices_from_purchase_order",
-		"on_update_after_submit": "apex_item.item_price_hooks.update_item_prices_from_purchase_order",
+		"on_submit": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info",
+		"on_cancel": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info",
+	},
+	"Landed Cost Voucher": {
+		"on_submit": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info_from_lcv",
+		"on_cancel": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info_from_lcv",
 	},
 	"Purchase Receipt": {
-		"on_submit": "apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
-		"on_cancel": "apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
+		"on_submit": [
+			"apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
+			"apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info"
+		],
+		"on_cancel": [
+			"apex_item.item_price_hooks.update_item_prices_from_purchase_receipt",
+			"apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info"
+		],
+	},
+	"Purchase Invoice": {
+		"on_submit": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info",
+		"on_cancel": "apex_item.item_foreign_purchase_hooks.update_item_foreign_purchase_info",
 	},
 	"Item": {
 		"validate": "apex_item.item_foreign_purchase_hooks.update_item_on_save",
@@ -173,6 +186,7 @@ doc_events = {
 # DocType JavaScript
 doctype_js = {
 	"Item Price": "public/js/item_price_form.js",
+	"Item": "public/js/item_foreign_purchase.js",
 }
 
 # Scheduled Tasks
@@ -272,7 +286,7 @@ fixtures = [
 		"dt": "Custom Field",
 		"filters": [
 			["module", "=", "Apex Item"],
-			["dt", "in", ["Item Price", "Item"]],
+			["dt", "in", ["Item Price", "Item", "Purchase Receipt Item", "Purchase Invoice Item"]],
 		],
 	},
 	{
