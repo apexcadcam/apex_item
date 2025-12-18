@@ -169,6 +169,23 @@ def remove_custom_fields() -> None:
 			"item_group",
 			"item_image",
 		],
+		"Item": [
+			"item_foreign_purchase_section",
+			"item_foreign_purchase_rate",
+			"item_foreign_purchase_column_break",
+			"item_foreign_purchase_applicable_charges",
+			"item_foreign_purchase_lcv",
+			"custom_item_foreign_purchase_date",
+			"item_foreign_purchase_voucher_type",
+			"item_foreign_purchase_voucher_no",
+			"item_foreign_purchase_supplier",
+			"item_foreign_purchase_currency",
+			"sales_pricing_section",
+			"margin_profit_percent",
+			"expense_calculation_method",
+			"expense_percentage",
+			"sales_price_recommended",
+		],
 	}
 
 	custom_fields: list[dict[str, str]] = []
