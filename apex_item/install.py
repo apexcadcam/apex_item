@@ -43,12 +43,20 @@ def after_install() -> None:
 		raise
 
 
+
+from apex_item.utils import trigger_update_foreign_purchase_info
+
 def after_migrate() -> None:
 	"""Ensure defaults exist after migrations run."""
 	try:
 		# Import custom fields to ensure they exist after migration
 		import_custom_fields()
 		setup_item_price_card_setting()
+		
+		# Trigger background update of foreign purchase info
+		print("\n⏳ Triggering background job to update Foreign Purchase Info...")
+		trigger_update_foreign_purchase_info()
+		
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "Apex Item After Migrate")
 
