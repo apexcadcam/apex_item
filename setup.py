@@ -6,8 +6,17 @@ with open("requirements.txt") as f:
 # Filter out empty lines and comments
 install_requires = [req.strip() for req in install_requires if req.strip() and not req.strip().startswith("#")]
 
+import os
+import re
+
 # get version from __version__ variable in apex_item/__init__.py
-from apex_item import __version__ as version
+version_file = os.path.join(os.path.dirname(__file__), "apex_item", "__init__.py")
+with open(version_file, "r") as f:
+    version_match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', f.read())
+    if version_match:
+        version = version_match.group(1)
+    else:
+        version = "0.0.1"
 
 setup(
 	name="apex_item",
