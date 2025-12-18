@@ -46,6 +46,8 @@ def after_install() -> None:
 def after_migrate() -> None:
 	"""Ensure defaults exist after migrations run."""
 	try:
+		# Import custom fields to ensure they exist after migration
+		import_custom_fields()
 		setup_item_price_card_setting()
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "Apex Item After Migrate")
@@ -115,7 +117,14 @@ def import_custom_fields() -> None:
 
 			try:
 				if frappe.db.exists("Custom Field", field_name):
-					frappe.db.set_value("Custom Field", field_name, "module", "Apex Item")
+					# Update existing field to ensure all properties match fixture
+					existing_field = frappe.get_doc("Custom Field", field_name)
+					# Update all properties from fixture
+					for key, value in field_data.items():
+						if key not in ["name", "doctype", "docstatus"]:
+							existing_field.set(key, value)
+					existing_field.module = "Apex Item"
+					existing_field.save(ignore_permissions=True)
 					updated += 1
 					print(f"  🔄 Updated: {dt}.{fieldname} [{batch_num}/{total_batches}]")
 					continue
