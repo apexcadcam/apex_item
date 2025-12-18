@@ -121,7 +121,7 @@ def import_custom_fields() -> None:
 					existing_field = frappe.get_doc("Custom Field", field_name)
 					# Update all properties from fixture
 					for key, value in field_data.items():
-						if key not in ["name", "doctype", "docstatus"]:
+						if key not in ["name", "doctype", "docstatus", "modified", "creation", "modified_by", "owner", "idx"]:
 							existing_field.set(key, value)
 					existing_field.module = "Apex Item"
 					existing_field.save(ignore_permissions=True)
